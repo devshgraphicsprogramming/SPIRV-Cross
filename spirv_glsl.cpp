@@ -3540,6 +3540,7 @@ void CompilerGLSL::emit_extension_workarounds(spv::ExecutionModel model)
 
 		if (shader_subgroup_supporter.is_feature_requested(Supp::SubgroupBrodcast_First))
 		{
+
 			auto exts = Supp::get_candidates_for_feature(Supp::SubgroupBrodcast_First, result);
 
 			for (auto &e : exts)
@@ -3659,6 +3660,18 @@ void CompilerGLSL::emit_extension_workarounds(spv::ExecutionModel model)
 			for (const char *t : workaround_types)
 				statement("_SPIRV_CROSS_SUBGROUP_ALL_EQUAL_WORKAROUND(", t, ")");
 			statement("#undef _SPIRV_CROSS_SUBGROUP_ALL_EQUAL_WORKAROUND");
+			statement("#endif");
+			statement("");
+		}
+
+		if (shader_subgroup_supporter.is_feature_requested(/* missing feature, do i add to enum Supp::Features?*/))
+		{
+			statement("#ifndef GL_KHR_SPIRV_CROSS_BROKEN_ROW_MAJOR_AMD_WORKAROUND");
+			statement(
+			    "#define _SPIRV_CROSS_MATRIX_FETCH_AMD_WORKAROUND(type) type SPIRV_Cross_broken_row_major_AMD_workaround(in type dummy) { return dummy; } ";
+			for (const char *t : workaround_types)
+				statement("_SPIRV_CROSS_MATRIX_FETCH_AMD_WORKAROUND(", t, ")");
+			statement("#undef _SPIRV_CROSS_MATRIX_FETCH_AMD_WORKAROUND");
 			statement("#endif");
 			statement("");
 		}

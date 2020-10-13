@@ -285,7 +285,7 @@ protected:
 			SubgroupInverseBallot_InclBitCount_ExclBitCout,
 			SubgroupBallotBitExtract,
 			SubgroupBallotBitCount,
-
+			//AMDMatrixFetchWrap
 			FeatureCount
 		};
 
