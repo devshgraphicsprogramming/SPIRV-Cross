@@ -810,8 +810,15 @@ void CompilerGLSL::emit_header()
 				auto extra_names = Supp::get_extra_required_extension_names(ext);
 				statement(&ext != &exts.front() ? "#elif" : "#if", " defined(", name, ")",
 				          (*extra_predicate != '\0' ? " && " : ""), extra_predicate);
-				for (const auto &e : extra_names)
-					statement("#extension ", e, " : enable");
+				if (extra_names.size())
+				{
+					for (const auto &e : extra_names)
+					{
+						statement(&e != &extra_names.front() ? "#elif" : "#if", " defined(", e, ")");
+						statement("#extension ", e, " : enable");
+					}
+					statement("#endif");
+				}
 				statement("#extension ", name, " : require");
 			}
 
@@ -15423,7 +15430,7 @@ SmallVector<std::string> CompilerGLSL::ShaderSubgroupSupportHelper::get_extra_re
 	switch (c)
 	{
 	case ARB_shader_ballot:
-		return { "GL_ARB_shader_int64" };
+		return { "GL_ARB_shader_int64", "GL_AMD_gpu_shader_int64" };
 	case AMD_gcn_shader:
 		return { "GL_AMD_gpu_shader_int64", "GL_NV_gpu_shader5" };
 	default:
@@ -15436,7 +15443,7 @@ const char *CompilerGLSL::ShaderSubgroupSupportHelper::get_extra_required_extens
 	switch (c)
 	{
 	case ARB_shader_ballot:
-		return "defined(GL_ARB_shader_int64)";
+		return "(defined(GL_ARB_shader_int64) || defined(GL_AMD_gpu_shader_int64))";
 	case AMD_gcn_shader:
 		return "(defined(GL_AMD_gpu_shader_int64) || defined(GL_NV_gpu_shader5))";
 	default:
