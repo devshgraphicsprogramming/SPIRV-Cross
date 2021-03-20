@@ -3790,6 +3790,17 @@ void CompilerGLSL::emit_extension_workarounds(spv::ExecutionModel model)
 					}
 					break;
 				case Supp::ARB_shader_ballot:
+					{
+						statement("double readFirstInvocationARB(double value) { return packDouble2x32(readFirstInvocationARB(unpackDouble2x32(value))); }");
+						statement("dvec2 readFirstInvocationARB(dvec2 value) { uvec4 res = readFirstInvocationARB(uvec4(unpackDouble2x32(value.x), unpackDouble2x32(value.y))); return dvec2(packDouble2x32(res.xy), packDouble2x32(res.zw)); }");
+						statement("dvec3 readFirstInvocationARB(dvec3 value) { return dvec3(readFirstInvocationARB(value.xy), readFirstInvocationARB(value.z)); }");
+						statement("dvec4 readFirstInvocationARB(dvec4 value) { return dvec4(readFirstInvocationARB(value.xy), readFirstInvocationARB(value.zw)); }");
+
+						statement("double readInvocationARB(double value, uint id) { return packDouble2x32(readInvocationARB(unpackDouble2x32(value), id)); }");
+						statement("dvec2 readInvocationARB(dvec2 value, uint id)   { uvec4 res = readInvocationARB(uvec4(unpackDouble2x32(value.x), unpackDouble2x32(value.y)), id); return dvec2(packDouble2x32(res.xy), packDouble2x32(res.zw)); }");
+						statement("dvec3 readInvocationARB(dvec3 value, uint id)   { return dvec3(readInvocationARB(value.xy, id), readInvocationARB(value.z, id)); }");
+						statement("dvec4 readInvocationARB(dvec4 value, uint id)   { return dvec4(readInvocationARB(value.xy, id), readInvocationARB(value.zw, id)); }");
+					}
 					for (const char *t : workaround_types)
 					{
 						statement(t, " subgroupBroadcastFirst(", t,
